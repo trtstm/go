@@ -200,6 +200,9 @@ func (a *Address) String() string {
 		quoteLocal = true
 		break
 	}
+	if len(local) == 0 {
+		quoteLocal = true
+	}
 	if quoteLocal {
 		local = quoteString(local)
 
@@ -441,9 +444,6 @@ Loop:
 		}
 	}
 	p.s = p.s[i+1:]
-	if len(qsb) == 0 {
-		return "", errors.New("mail: empty quoted-string")
-	}
 	return string(qsb), nil
 }
 

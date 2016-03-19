@@ -6,6 +6,7 @@ package mail
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -493,11 +494,11 @@ func TestAddressString(t *testing.T) {
 		},
 		{ // https://golang.org/issue/12098
 			&Address{Name: "Rob", Address: ""},
-			`"Rob" <@>`,
+			`"Rob" <""@>`,
 		},
 		{ // https://golang.org/issue/12098
 			&Address{Name: "Rob", Address: "@"},
-			`"Rob" <@>`,
+			`"Rob" <""@>`,
 		},
 		{
 			&Address{Name: "Böb, Jacöb", Address: "bob@example.com"},
@@ -568,10 +569,13 @@ func TestAddressParsingAndFormatting(t *testing.T) {
 		`<"."@example.com>`,
 		`<".."@example.com>`,
 		`<"0:"@0>`,
+		`<""@0>`,
+		//"<\"\t0\"@0>",
 	}
 
 	for _, test := range tests {
 		addr, err := ParseAddress(test)
+		prev := addr
 		if err != nil {
 			t.Errorf("Couldn't parse address %s: %s", test, err.Error())
 			continue
@@ -579,6 +583,7 @@ func TestAddressParsingAndFormatting(t *testing.T) {
 		str := addr.String()
 		addr, err = ParseAddress(str)
 		if err != nil {
+			fmt.Println(prev)
 			t.Errorf("ParseAddr(%q) error: %v", test, err)
 			continue
 		}
@@ -609,8 +614,6 @@ func TestAddressParsingAndFormatting(t *testing.T) {
 		`<test@.>`,
 		`< @example.com>`,
 		`<""test""blah""@example.com>`,
-		`<""@0>`,
-		"<\"\t0\"@0>",
 	}
 
 	for _, test := range badTests {
